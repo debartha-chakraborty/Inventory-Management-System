@@ -1,12 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Annotated
+from sqlalchemy.orm import Session
+from schemas import get_db
 
 app = FastAPI()
-
-origins = [
-    "http://localhost:3000",
-    "http://localhost:8000",
-]
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -15,13 +14,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+db_dependency = Annotated[Session, Depends(get_db)]
+
+
 @app.get("/")
 async def health():
     return {"status": "ok"}
 
-
-@app.get("/users/{user_id}/items/{item_id}")
-async def get_item(user_id: int, item_id: int):
-    user = {"user_id": user_id, "item_id": item_id}
-    return user
-    
